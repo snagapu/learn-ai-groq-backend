@@ -1,42 +1,23 @@
-
-import express from "express";
-import cors from "cors";
-import dotenv from "dotenv";
-import bodyParser from "body-parser";
-import fetch from "node-fetch";
-
-dotenv.config();
-const app = express();
-app.use(cors());
-app.use(bodyParser.json());
+import { Groq } from "groq-sdk";
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 app.post("/api/tutor", async (req, res) => {
-  const { question } = req.body;
-
   try {
-    const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "llama3-8b-8192",
-        messages: [
-          { role: "system", content: "You are an expert tutor who explains things clearly and simply." },
-          { role: "user", content: question }
-        ],
-      }),
+    const messages = req.body.messages;
+
+    if (!messages || !Array.isArray(messages)) {
+      return res.status(400).json({ error: "Messages must be an array." });
+    }
+
+    const response = await groq.chat.completions.create({
+      messages,
+      model: "mixtral-8x7b-32768", // use any model you want here
     });
 
-    const data = await groqRes.json();
-    const answer = data.choices?.[0]?.message?.content || "Sorry, no answer received.";
+const answer = response.choices?.[0]?.message?.content || "No answer received.";
     res.json({ answer });
   } catch (err) {
-    console.error("Groq error:", err);
-    res.status(500).json({ error: "Something went wrong" });
+    console.error("Backend error:", err);
+    res.status(500).json({ error: "Something went wrong." });
   }
 });
-
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
