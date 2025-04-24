@@ -25,7 +25,7 @@ app.post("/api/tutor", async (req, res) => {
 
     const response = await groq.chat.completions.create({
       messages,
-      model: "llama3-70b-8192", // ✅ latest supported model
+      model: "llama3-70b-8192", // ✅ Supported Groq model
     });
 
     const answer = response.choices?.[0]?.message?.content || "No answer received.";
@@ -40,3 +40,4 @@ app.post("/api/tutor", async (req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`✅ Server running on port ${PORT}`);
+});
