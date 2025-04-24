@@ -25,7 +25,9 @@ app.post("/api/tutor", async (req, res) => {
 
     const response = await groq.chat.completions.create({
       messages,
-      model: "mixtral-8x7b-32768", // You can change to another Groq model if needed
+      model: "llama3-70b-8192", // You can change to another Groq model if needed
+});
+
     });
 
     const answer = response.choices?.[0]?.message?.content || "No answer received.";
